@@ -18,7 +18,7 @@ struct Node{
 
 // You can add your helper functions here, or global variables, structs etc if you require
 int cluster_count=0;
-struct Node* add(struct Node*head, unsigned long file_number, unsigned long bytes_to_append){
+struct Node* add(struct Node*head, unsigned int file_number, unsigned int bytes_to_append){
 
     struct Node* ptr = (struct Node*)malloc(sizeof(struct Node));
     ptr->cluster_number = cluster_count;
@@ -40,10 +40,9 @@ struct Node* add(struct Node*head, unsigned long file_number, unsigned long byte
     return head;
 }
 
-void append(unsigned long file_number, unsigned long bytes_to_append, struct Node* file_heads[]){
+void append(unsigned int file_number, unsigned int bytes_to_append, struct Node* file_heads[]){
     struct Node* head = file_heads[file_number];
     struct Node* current = head;
-    int modified=0;
     
     if(head==NULL){
         head = add(head,file_number,bytes_to_append);
@@ -62,7 +61,7 @@ void append(unsigned long file_number, unsigned long bytes_to_append, struct Nod
     
 }
 
-void update(unsigned long cluster_number, struct Node* file_heads[]){
+void update(unsigned int cluster_number, struct Node* file_heads[]){
     for(int i=0;i<10;i++){
         struct Node* head = file_heads[i];
         struct Node* current = head;
@@ -72,10 +71,21 @@ void update(unsigned long cluster_number, struct Node* file_heads[]){
             }
             current= current->next;
         }
+        current = head;
+        while(current!=NULL){
+            if(current->next != NULL){
+                current -> next_cluster = current->next->cluster_number;
+                current= current->next;
+            }else{
+                current -> next_cluster = -1;
+                current= current->next;
+            }
+            
+        }
     }
 }
 
-void delete(unsigned long file_number, unsigned long cluster_number, struct Node* file_heads[]){
+void delete(unsigned int file_number, unsigned int cluster_number, struct Node* file_heads[]){
     struct Node* head = file_heads[file_number];
     struct Node* current = head;
     if(head->cluster_number == cluster_number){
@@ -110,13 +120,13 @@ int main(){
         scanf("%d", &type);
 
         if(type == 1){
-            unsigned long file_number, bytes_to_append;
-            scanf("%lu %lu", &file_number, &bytes_to_append);
+            unsigned int file_number, bytes_to_append;
+            scanf("%u %u", &file_number, &bytes_to_append);
             append(file_number, bytes_to_append, file_heads);
         }
         else{
-            unsigned long file_number, cluster_number;
-            scanf("%lu %lu", &file_number, &cluster_number);
+            unsigned int file_number, cluster_number;
+            scanf("%u %u", &file_number, &cluster_number);
             delete(file_number, cluster_number, file_heads);
         }
     }
@@ -124,7 +134,7 @@ int main(){
     for(int i = 0; i < M; i++){
         struct Node* head = file_heads[i];
         while(head != NULL){
-            printf("%lu %lu %lu\n", head->cluster_number, head->next_cluster, head->bytes_filled);
+            printf("%u %u %u\n", head->cluster_number, head->next_cluster, head->bytes_filled);
             head = head->next;
         }
         printf("-1\n");
